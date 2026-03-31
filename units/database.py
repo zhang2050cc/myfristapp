@@ -6,7 +6,6 @@ from typing import List, Dict
 
 class SupabaseAuth:
     @staticmethod
-    #@st.cache_resource
     def _init_client() -> Client:
         try:
             supabase_url = st.secrets["supabase_secret"]["url"]
@@ -43,7 +42,9 @@ class SupabaseAuth:
     def get_user_state(self)-> Dict:
         try:
             response = self.client.auth.get_user()
-            is_logged_in = response.user is not None
+            if response.user:
+                is_logged_in = True
+
             return {"ok": True, "data": {"is_logged_in": is_logged_in, "user": response}}
         except Exception as e:
             return {"ok": False, "error": str(e)}

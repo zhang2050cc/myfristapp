@@ -9,11 +9,16 @@ class AuthState:
     def __init__(self):
         self.auth = SupabaseAuth()
         AppState.init_session_state()#初始化状态
+    @property
+    def is_logged_in(self)->str:
+        return st.session_state["is_logged_in"]
+    @is_logged_in.setter
+    def is_logged_in(self, value):
+        st.session_state["is_logged_in"] = value
 
     @property
     def user(self)->str:
         return st.session_state["user"]
-
     @user.setter
     def user(self, value):
         st.session_state["user"] = value
@@ -21,7 +26,6 @@ class AuthState:
     @property
     def email(self):
         return st.session_state["email"]
-
     @email.setter
     def email(self, value):
         st.session_state["email"] = value
@@ -29,7 +33,6 @@ class AuthState:
     @property
     def status(self):
         return st.session_state["status"]
-
     @status.setter
     def status(self, value):
         st.session_state["status"] = value
@@ -37,7 +40,6 @@ class AuthState:
     @property
     def message(self):
         return st.session_state["message"]
-
     @message.setter
     def message(self, value):
         st.session_state["message"] = value
@@ -52,15 +54,14 @@ class AuthState:
 
 
     def is_authenticated(self):
-        if self.user is None:
-            if self.status == "Login_out":#用户退出后，状态会变为 "Login_out"，此时不应继续检查用户状态，否则会导致退出后再次获取用户状态失败，陷入死循环
-                return False
+        if self.user is None or  not self.is_logged_in:
             res = self.auth.get_user_state()
             if res["ok"]:
                 is_logged_in = res["data"]["is_logged_in"]
                 if is_logged_in:
                     self.user = res["data"]["user"].user
                     self.status = "success"
+                    self.is_logged_in = True
                     self.message = f"欢迎回来，{self.user.email}"
             
             else:
@@ -87,6 +88,7 @@ class AuthState:
             self.email = email
             self.status = "success"
             self.message = "登录成功"
+            self.is_logged_in = True
             st.rerun()  # 刷新页面以更新状态
         else:
             self.status = "error"
@@ -117,55 +119,15 @@ class AuthState:
         res = self.auth.logout()
         if res["ok"]:
             self.user = None
-            self.status = "Login_out"
+            self.status = "success"
             self.message = "退出登录成功"
+            self.is_logged_in = False
             st.rerun()  # 刷新页面以更新状态            
         else:
             self.status = "error"
             self.message = f"退出失败：{res['error']}"
 
     
-    def search_material(self, query):
-        """示例搜索方法，实际实现应根据数据库结构调整"""
-        self.status = "loading"
-        self.message = f"正在搜索：{query}"
-        res = self.auth.search_material(query)
-        if res["ok"]:
-            self.status = "success"
-            self.message = f"搜索完成"
-            self.local_search_results = res["data"]
-            #st.write("搜索结果：", self.local_search_results)
-        else:
-            self.status = "error"
-            self.message = f"搜索失败：{res['error']}"
-
-    def fetch_external_resources(self, query, source="unsplash", limit=20):
-        """示例外部资源获取方法，实际实现应根据数据库结构调整"""
-        self.status = "loading"
-        self.message = f"正在获取外部资源：{query}"
-        res = self.auth.fetch_external_resources(query, source, limit)
-        if res["ok"]:
-            self.status = "success"
-            self.message = f"获取成功"
-            self.search_results = res["data"]
-            st.write("获取结果：", self.search_results)
-        else:
-            self.status = "error"
-            self.message = f"获取失败：{res['error']}"
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 class AuthSidebar:
     def __init__(self, state: AuthState):

@@ -1,0 +1,14 @@
+# Streamlit - Web 应用框架
+streamlit
+
+# Supabase - 数据库客户端
+supabase
+
+# Pandas - 数据处理
+pandas
+
+# Requests - HTTP 请求库
+requests
+
+# Openpyxl - Excel 文件读写支持（pandas 依赖）
+openpyxl

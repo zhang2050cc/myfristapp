@@ -310,7 +310,7 @@ class MaterialPage(BasePage):
                 total_results = photo_info["total_results"]
                 
 
-                st.write(f"total_results= {total_results}, per_page = {self.per_page} ,photos={len(photos)}" )
+                #st.write(f"total_results= {total_results}, per_page = {self.per_page} ,photos={len(photos)}" )
 
                 
                 newpage = self.current_page

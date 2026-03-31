@@ -298,8 +298,8 @@ class MaterialPage(BasePage):
             data = getattr(self.material_downloader,"search_result",None)#搜索的结果
             
             if data :
-                st.write(f"开始渲染了.....{self.search_source}")
-                st.json(data)
+                #st.write(f"开始渲染了.....{self.search_source}")
+                #st.json(data)
                 photo_info = self.material_downloader.GetUrlBySearchResults(data,self.search_source)
                 #if not photo_info["photos"]:
                     #return #字典中photos字段为空列表，没有图片数据

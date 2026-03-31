@@ -6,7 +6,7 @@ from typing import List, Dict
 
 class SupabaseAuth:
     @staticmethod
-    @st.cache_resource
+    #@st.cache_resource
     def _init_client() -> Client:
         try:
             supabase_url = st.secrets["supabase_secret"]["url"]

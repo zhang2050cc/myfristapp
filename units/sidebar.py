@@ -171,8 +171,8 @@ class AuthSidebar:
             self.state.email = email
 
             col1, col2 = st.columns([1, 1])
-            btn_login = col1.button("登录", use_container_width=True)
-            btn_register = col2.button("注册", use_container_width=True)
+            btn_login = col1.button("登录", width="stretch")
+            btn_register = col2.button("注册", width="stretch")
 
             if btn_login:
                 self.state.login(email, password)

@@ -116,17 +116,17 @@ class HomePage(BasePage):
 
         with col1:
             st.info("📥 **素材下载**\n\n海量高清图片、图标、模板，一键获取，商用无忧。", icon="🖼️")
-            if st.button("去下载 →", key="btn_asset", use_container_width=True):
+            if st.button("去下载 →", key="btn_asset", width="stretch"):
                 st.toast("即将跳转到素材库...")
 
         with col2:
             st.success("💾 **软件下载**\n\n精选免费/开源工具，安全无广告，持续更新。", icon="📦")
-            if st.button("去下载 →", key="btn_soft", use_container_width=True):
+            if st.button("去下载 →", key="btn_soft", width="stretch"):
                 st.toast("即将跳转到软件中心...")
 
         with col3:
             st.warning("🚀 **新功能体验**\n\n抢先试用AI助手、自动化脚本等前沿功能。", icon="🧪")
-            if st.button("去体验 →", key="btn_new", use_container_width=True):
+            if st.button("去体验 →", key="btn_new", width="stretch"):
                 st.toast("即将进入实验室...")
 
         st.divider()
@@ -145,8 +145,8 @@ class HomePage(BasePage):
                 email = getattr(user, "email", None) or (user.get("email") if isinstance(user, dict) else "未知")
                 #st.success(f"欢迎回来，{email}")
                 st.markdown(f"###### 👋 :blue[欢迎回来，{email} ]")
-            st.button("📊 查看我的统计", use_container_width=True, key="btn_stats")
-            st.button("⚙️ 设置偏好", use_container_width=True, key="btn_settings")
+            st.button("📊 查看我的统计", width="stretch", key="btn_stats")
+            st.button("⚙️ 设置偏好", width="stretch", key="btn_settings")
         st.info("🌀 正在加载最新资源...", icon="🔄")
         st.divider()
 
@@ -285,7 +285,7 @@ class MaterialPage(BasePage):
             query = st.text_input("🔍 搜索本地素材",value = self.local_search_query,
                                   placeholder="输入关键词...", label_visibility="collapsed")
         with col2:
-            if st.button("搜索", use_container_width=True):
+            if st.button("搜索", width="stretch"):
                 #去除首尾空格后再搜索
                 if query.strip() and self.auth_state:
                     self.local_search_query = query.strip()
@@ -344,13 +344,13 @@ class MaterialPage(BasePage):
                         if image_url:# 图片信息
 
                             with st.spinner("🔄 加载中..."):
-                                st.image(image_url, use_container_width=True)#显示图片
+                                st.image(image_url, width="stretch")#显示图片
                                 st.caption(f"📸: {photographer}")
 
                                 # 渲染两个按钮(查看原图,下载此图)同一行显示
                                 columns = st.columns(2)
                                 with columns[0]:
-                                    st.link_button("🔗 查看原图", original_image_url, use_container_width=True)# 使用链接按钮
+                                    st.link_button("🔗 查看原图", original_image_url, width="stretch")# 使用链接按钮
                                 with columns[1]:
                                     if st.button("⬇️ 下载此图", key=f"download_{photo['id']}"):
                                         #img_data = requests.get(img_url).content

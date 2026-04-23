@@ -54,14 +54,14 @@ class HomePage(BasePage):
 
     @st.fragment(run_every=1)
     def show_live_clock(self):
-        # 获取当前时间（只显示时分秒）
+            # 获取当前时间（只显示时分秒）
             ny_now = datetime.now(ZoneInfo("Asia/Shanghai"))  #北京时间
-            hour = ny_now.hour  
-            # 3. 获取格式化字符串（例如 "14:30:05"）
+            
+            # 获取格式化字符串（例如 "14:30:05"）
             current_time = ny_now.strftime("%H:%M:%S")
             
             # 根据时间段显示不同的问候
-            hour = datetime.now().hour
+            hour = ny_now.hour  
             # 1. 准备问候语
             if 5 <= hour < 12:
                 greeting = "☀️ 早上好"

@@ -57,7 +57,8 @@ class AuthState:
 
 
     def is_authenticated(self):
-         if self.user is None :
+        """检查用户是否已登录"""
+        if self.user is None :
             access_token=self.cookies.get("access_token")
             refresh_token=self.cookies.get("refresh_token")
             if access_token and refresh_token:
@@ -77,6 +78,7 @@ class AuthState:
                     self.status = "error"#获取用户状态失败：error,'NoneType' object has no attribute 'user'
                     self.message = f"获取用户状态失败：{self.status},{res['error']}"
         return bool(self.user)
+        
 
        
 

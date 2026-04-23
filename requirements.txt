@@ -12,3 +12,6 @@ requests
 
 # Openpyxl - Excel 文件读写支持（pandas 依赖）
 openpyxl
+
+# 时区转换
+zoneinfo

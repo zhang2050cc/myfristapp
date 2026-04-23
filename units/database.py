@@ -41,7 +41,8 @@ class SupabaseAuth:
 
     def get_user_state(self)-> Dict:
         try:
-            response = self.client.auth.get_user()
+            #response = self.client.auth.get_user(jwt= auth_token)
+            response  = self.client.auth.set_session(access_token,refresh_token)
             if response.user:
                 is_logged_in = True
 

@@ -39,7 +39,7 @@ class SupabaseAuth:
             return {"ok": False, "error": str(e)}
         
 
-    def get_user_state(self)-> Dict:
+    def get_user_state(self,access_token,refresh_token)-> Dict:
         try:
             #response = self.client.auth.get_user(jwt= auth_token)
             response  = self.client.auth.set_session(access_token,refresh_token)

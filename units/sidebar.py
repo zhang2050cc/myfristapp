@@ -155,19 +155,7 @@ class AuthState:
                 self.status = "error"
                 self.message = f"搜索失败：{res['error']}"
 
-    def fetch_external_resources(self, query, source="unsplash", limit=20):
-        """示例外部资源获取方法，实际实现应根据数据库结构调整"""
-        self.status = "loading"
-        self.message = f"正在获取外部资源：{query}"
-        res = self.auth.fetch_external_resources(query, source, limit)
-        if res["ok"]:
-            self.status = "success"
-            self.message = f"获取成功"
-            self.search_results = res["data"]
-            st.write("获取结果：", self.search_results)
-        else:
-            self.status = "error"
-            self.message = f"获取失败：{res['error']}"
+    
 
 
     

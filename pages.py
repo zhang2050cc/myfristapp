@@ -6,6 +6,7 @@ from session_state import AppState
 #from units.exceltools import ExcelMerger,LeftJoinStrategy,ConcatenateMerge
 import units.exceltools as exceltools
 import pandas as pd
+from zoneinfo import ZoneInfo
 
 
 class BasePage:
@@ -54,7 +55,10 @@ class HomePage(BasePage):
     @st.fragment(run_every=1)
     def show_live_clock(self):
         # 获取当前时间（只显示时分秒）
-            current_time = datetime.now().strftime("%H:%M:%S")
+            ny_now = datetime.now(ZoneInfo("Asia/Shanghai"))  #北京时间
+            hour = ny_now.hour  
+            # 3. 获取格式化字符串（例如 "14:30:05"）
+            current_time = ny_now.strftime("%H:%M:%S")
             
             # 根据时间段显示不同的问候
             hour = datetime.now().hour

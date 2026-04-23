@@ -1,12 +1,15 @@
 import streamlit as st
 from units.database import SupabaseAuth
-
+from streamlit_cookies_manager import EncryptedCookieManager
 from session_state import AppState
 
 
 class AuthState:
     """认证状态管理类，负责维护用户认证状态、登录/注册/退出逻辑，以及搜索功能的状态。"""
     def __init__(self):
+        self.cookies = EncryptedCookieManager(password= st.secrets["cookie_password"])
+        if not self.cookies.ready():
+            st.stop()
         self.auth = SupabaseAuth()
         AppState.init_session_state()#初始化状态
     @property
@@ -54,25 +57,28 @@ class AuthState:
 
 
     def is_authenticated(self):
-        if self.user is None or  not self.is_logged_in:
-            res = self.auth.get_user_state()
-            if res["ok"]:
-                is_logged_in = res["data"]["is_logged_in"]
-                if is_logged_in:
-                    self.user = res["data"]["user"].user
-                    self.status = "success"
-                    self.is_logged_in = True
-                    self.message = f"欢迎回来，{self.user.email}"
-            
-            else:
-                #st.warning(f"当前未登录，正在检查用户状态... {self.status}")
-                if self.status == "idle":#初始的默认值
-                    return False
+         if self.user is None :
+            access_token=self.cookies.get("access_token")
+            refresh_token=self.cookies.get("refresh_token")
+            if access_token and refresh_token:
+                res = self.auth.get_user_state(access_token,refresh_token)
+                if res["ok"]:
+                    is_logged_in = res["data"]["is_logged_in"]
+                    if is_logged_in:
+                        self.user = res["data"]["user"].user
+                        self.status = "success"
+                        self.is_logged_in = True
+                        self.message = f"欢迎回来，{self.user.email}"
+                
+                else:
+                    if self.status == "idle":#初始的默认值
+                        return False
 
-                self.status = "error"
-                self.message = f"获取用户状态失败：{self.status},{res['error']}"
-
+                    self.status = "error"#获取用户状态失败：error,'NoneType' object has no attribute 'user'
+                    self.message = f"获取用户状态失败：{self.status},{res['error']}"
         return bool(self.user)
+
+       
 
     def login(self, email, password):
         if not email or not password:
@@ -89,6 +95,9 @@ class AuthState:
             self.status = "success"
             self.message = "登录成功"
             self.is_logged_in = True
+            self.cookies["access_token"]=user.session.access_token
+            self.cookies["refresh_token"]=user.session.refresh_token
+            self.cookies.save()
             st.rerun()  # 刷新页面以更新状态
         else:
             self.status = "error"
@@ -122,6 +131,9 @@ class AuthState:
             self.status = "success"
             self.message = "退出登录成功"
             self.is_logged_in = False
+            self.cookies["access_token"]=""
+            self.cookies["refresh_token"]=""
+            self.cookies.save()
             st.rerun()  # 刷新页面以更新状态            
         else:
             self.status = "error"

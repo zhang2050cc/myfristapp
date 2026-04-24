@@ -201,15 +201,15 @@ class MaterialDownLoad():
                                     self.search_result.get("results",self.search_result.get("hits", []))))
                     self.auth_state.status = "success"
                     self.auth_state.message = f"成功找到 {num_results} 条素材！"
-                    
+                    st.rerun()
                 else:
                     self.auth_state.status = "search_failed"
                     self.auth_state.message = f"搜索失败: {response.status_code}"
-                    st.toast(f"搜索失败: {response.status_code}")
+                    st.rerun()
             except Exception as e:
                 self.auth_state.status = "error"
                 self.auth_state.message = f"搜索过程中发生错误: {str(e)}"
-                st.toast(f"搜索失败，状态码: {str(e)}")
+                st.rerun()
         
     
     

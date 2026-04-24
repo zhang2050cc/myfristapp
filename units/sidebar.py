@@ -97,8 +97,7 @@ class AuthState:
                     if self.status == "idle":#初始的默认值
                         return False
 
-                    self.status = "error"#获取用户状态失败：error,'NoneType' object has no attribute 'user'
-                    self.message = f"获取用户状态失败：{self.status},{res['error']}"
+                    
         return bool(self.user)
 
     def login(self, email, password):

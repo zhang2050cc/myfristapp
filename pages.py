@@ -173,13 +173,16 @@ class MaterialPage(BasePage):
     def __init__(self, auth_state = None):
         super().__init__(auth_state)
         self.material_downloader = MaterialDownLoad(auth_state)
-        self.orientation = ""
+        
         #要展示的素材列表的键的名称
         self.material_list_key = ["thumbnail_url","image_url","resolution","file_size"]
         #搜索条件local_search_query ,search_source ,apikey,size_option #图片方向，orientation
-    # @property
-    # def orientation(self):
-    #     return st.session_state["orientation"]    
+    @property
+    def orientation(self):
+        return st.session_state["orientation"]  
+    @orientation.setter
+    def orientation(self,value):
+        st.session_state["orientation"] = value
 
     @property
     def size_option(self):

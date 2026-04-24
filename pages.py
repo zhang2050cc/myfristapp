@@ -381,7 +381,7 @@ class MaterialPage(BasePage):
                                 # 渲染两个按钮(查看原图,下载此图)同一行显示
                                 columns = st.columns(2)
                                 with columns[0]:
-                                    st.link_button("🔗 查看原图", original_image_url, width="stretch")# 使用链接按钮
+                                    st.link_button("🔗 查看原图", original_image_url)# 使用链接按钮
                                 with columns[1]:
                                     if st.button("⬇️ 下载此图", key=f"download_{index}_{photo['id']}"):
                                         #img_data = requests.get(img_url).content

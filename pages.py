@@ -499,7 +499,7 @@ class MaterialPage(BasePage):
                         #key="orientation"
                     )
                     # 3. 通过选中的键，从字典中获取对应的程序值
-                    self.orientation = ORIENTATION_MAP[selected_label]
+                    selected_label = ORIENTATION_MAP[selected_label]
                     
                     # st.selectbox(
                     #     "图片方向",
@@ -567,9 +567,9 @@ class MaterialPage(BasePage):
                         #print("请输入API Key")
 
                 if source == "pixabay":#"horizontal", "vertical"
-                    if self.orientation == "landscape":#landscape (横向), portrait (纵向)
+                    if selected_label == "landscape":#landscape (横向), portrait (纵向)
                         self.orientation ="horizontal"
-                    if self.orientation == "portrait":
+                    if selected_label == "portrait":
                         self.orientation ="vertical"
 
                 if query and apikey:

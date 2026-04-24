@@ -173,12 +173,13 @@ class MaterialPage(BasePage):
     def __init__(self, auth_state = None):
         super().__init__(auth_state)
         self.material_downloader = MaterialDownLoad(auth_state)
+        self.orientation = ""
         #要展示的素材列表的键的名称
         self.material_list_key = ["thumbnail_url","image_url","resolution","file_size"]
         #搜索条件local_search_query ,search_source ,apikey,size_option #图片方向，orientation
-    @property
-    def orientation(self):
-        return st.session_state["orientation"]    
+    # @property
+    # def orientation(self):
+    #     return st.session_state["orientation"]    
 
     @property
     def size_option(self):
@@ -322,7 +323,7 @@ class MaterialPage(BasePage):
     def render_external_search_results(self):
         if hasattr(self.material_downloader,"search_result"): 
             data = getattr(self.material_downloader,"search_result",None)#搜索的结果
-            
+           
             if data :
                 #st.write(f"开始渲染了.....{self.search_source}")
                 #st.json(data)
@@ -459,8 +460,8 @@ class MaterialPage(BasePage):
                         # 使用字典映射，代码可读性更强
                         format_func=lambda x: {
                             "unsplash": "📷 Unsplash",
-                            "pexels": "🎨 Pexels",
-                            "pixabay": "🖼️ Pixabay"
+                            "pexels":   "🎨 Pexels",
+                            "pixabay":  "🖼️ Pixabay"
                         }[x]
                     )
 
@@ -482,20 +483,38 @@ class MaterialPage(BasePage):
                     )
 
                 with col_ori:    #图片方向，orientation 可选值：landscape (横向), portrait (纵向), square (方形)
-                    st.selectbox(
+                    # 1. 定义一个字典，键是显示给用户的，值是程序内部使用的
+                    ORIENTATION_MAP = {
+                        "不限": "",
+                        "横向": "horizontal" ,
+                        "纵向": "vertical" ,
+                        "方形": "square",
+                    }
+                    # 2. 使用字典的键作为下拉框的选项
+                    selected_label = st.selectbox(
                         "图片方向",
-                        ["", "landscape", "portrait", "square"],#Accepted values: "all", "horizontal", "vertical"
-                        index = 1,
+                        options=list(ORIENTATION_MAP.keys()), # 显示: ["不限", "横向", "纵向", "方形"]
+                        index=1,                              # 默认选中 "横向"
                         label_visibility="collapsed",
-                        key="orientation" ,# 建议也给这个加上 key，防止刷新重置
-                        # 使用 format_func 将内部值映射为友好的中文显示
-                        format_func=lambda x: {
-                            "":         "不限",       # 对应 API 不传或空值
-                            "landscape": "横向", 
-                            "portrait": "纵向", 
-                            "square":   "方形"
-                        }.get(x, x)
+                        #key="orientation"
                     )
+                    # 3. 通过选中的键，从字典中获取对应的程序值
+                    self.orientation = ORIENTATION_MAP[selected_label]
+                    
+                    # st.selectbox(
+                    #     "图片方向",
+                    #     ["", "landscape", "portrait", "square"],#Accepted values: "all", "horizontal", "vertical"
+                    #     index = 1,
+                    #     label_visibility="collapsed",
+                    #     key="orientation" ,# 建议也给这个加上 key，防止刷新重置
+                    #     # 使用 format_func 将内部值映射为友好的中文显示
+                    #     format_func=lambda x: {
+                    #         "":          "不限",       # 对应 API 不传或空值
+                    #         "landscape": "横向", 
+                    #         "portrait":  "纵向", 
+                    #         "square":    "方形"
+                    #     }.get(x, x)
+                    # )
 
                 with col_count:
                     #limit = st.number_input("数量", min_value=5, max_value=30, value=10, step=1,label_visibility="collapsed")
@@ -510,9 +529,8 @@ class MaterialPage(BasePage):
                                         )
 
                 c1, c2 = st.columns(2)
-                with c1:
-                    
 
+                with c1:
                     apikey = st.text_input("API Key", 
                                             value = "" if st.session_state["user_name"]=="管理员" else self.external_api_key, 
                                             label_visibility="collapsed",
@@ -542,11 +560,17 @@ class MaterialPage(BasePage):
                 apikey= apikey.strip()
                 if not apikey: 
                     apikey = self.get_key(source)
-                if not apikey:
-                    self.auth_state.message = "请输入API Key"   
-                    self.auth_state.status = "error"
-                    st.rerun()
-                    #print("请输入API Key")
+                    if not apikey:
+                        self.auth_state.message = "请输入API Key"   
+                        self.auth_state.status = "error"
+                        st.rerun()
+                        #print("请输入API Key")
+
+                if source == "pixabay":#"horizontal", "vertical"
+                    if self.orientation == "landscape":#landscape (横向), portrait (纵向)
+                        self.orientation ="horizontal"
+                    elif self.orientation == "portrait":
+                        self.orientation ="vertical"
 
                 if query and apikey:
                     #st.toast("开始下载")

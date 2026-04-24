@@ -568,9 +568,9 @@ class MaterialPage(BasePage):
 
                 if source == "pixabay":#"horizontal", "vertical"
                     if selected_label == "landscape":#landscape (横向), portrait (纵向)
-                        self.orientation ="horizontal"
+                        selected_label ="horizontal"
                     if selected_label == "portrait":
-                        self.orientation ="vertical"
+                        selected_label ="vertical"
 
                 if query and apikey:
                     #st.toast("开始下载")
@@ -579,6 +579,7 @@ class MaterialPage(BasePage):
                     self.external_search_query  = query
                     self.per_page               = limit
                     self.current_page = 1
+                    self.orientation = selected_label
                     #st.caption(f"图片尺寸：{self.size_option}， 方向: {self.orientation},每页数量: {self.per_page},搜索源: {self.search_source}")
                     self.material_downloader.search_material(query, source, apikey, limit, direction=self.orientation)
                     

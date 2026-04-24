@@ -569,7 +569,7 @@ class MaterialPage(BasePage):
                 if source == "pixabay":#"horizontal", "vertical"
                     if self.orientation == "landscape":#landscape (横向), portrait (纵向)
                         self.orientation ="horizontal"
-                    elif self.orientation == "portrait":
+                    if self.orientation == "portrait":
                         self.orientation ="vertical"
 
                 if query and apikey:

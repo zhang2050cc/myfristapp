@@ -486,8 +486,8 @@ class MaterialPage(BasePage):
                     # 1. 定义一个字典，键是显示给用户的，值是程序内部使用的
                     ORIENTATION_MAP = {
                         "不限": "",
-                        "横向": "horizontal" ,
-                        "纵向": "vertical" ,
+                        "横向": "landscape" ,
+                        "纵向": "portrait" ,
                         "方形": "square",
                     }
                     # 2. 使用字典的键作为下拉框的选项

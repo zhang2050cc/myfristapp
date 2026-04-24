@@ -5,7 +5,6 @@ from units.资源下载类 import MaterialDownLoad
 from session_state import AppState
 #from units.exceltools import ExcelMerger,LeftJoinStrategy,ConcatenateMerge
 import units.exceltools as exceltools
-import pandas as pd
 from zoneinfo import ZoneInfo
 
 
@@ -54,40 +53,42 @@ class HomePage(BasePage):
 
     @st.fragment(run_every=1)
     def show_live_clock(self):
-            # 获取当前时间（只显示时分秒）
-            ny_now = datetime.now(ZoneInfo("Asia/Shanghai"))  #北京时间
+        # 获取当前时间（只显示时分秒）纽约时间"America/New_York"  
             
-            # 获取格式化字符串（例如 "14:30:05"）
-            current_time = ny_now.strftime("%H:%M:%S")
-            
-            # 根据时间段显示不同的问候
-            hour = ny_now.hour  
-            # 1. 准备问候语
-            if 5 <= hour < 12:
-                greeting = "☀️ 早上好"
-                greet_color = "orange"  # 早上用橙色
-            elif 12 <= hour < 18:
-                greeting = "🌤️ 下午好"
-                greet_color = "#1E88E5"  # 下午用蓝色 (十六进制代码)
-            elif 18 <= hour < 22:
-                greeting = "🌙 晚上好"
-                greet_color = "#8E24AA"  # 晚上用紫色
-            else:
-                greeting = "😴 夜深了"
-                greet_color = "gray"     # 深夜用灰色
+        # 1. 先获取时间对象（不要直接转字符串）
+        ny_now = datetime.now(ZoneInfo("Asia/Shanghai"))  #北京时间
+        # 2. 获取小时（整数，例如 14）
+        hour = ny_now.hour  
+        # 3. 获取格式化字符串（例如 "14:30:05"）
+        current_time = ny_now.strftime("%H:%M:%S")
 
-            # 显示时间 (大一点，你可以随意改颜色！比如 'red', 'green', '#FF0000')
+        # 根据时间段显示不同的问候
+        # 1. 准备问候语
+        if 5 <= hour < 12:
+            greeting = "☀️ 早上好"
+            greet_color = "orange"  # 早上用橙色
+        elif 12 <= hour < 18:
+            greeting = "🌤️ 下午好"
+            greet_color = "#1E88E5"  # 下午用蓝色 (十六进制代码)
+        elif 18 <= hour < 22:
+            greeting = "🌙 晚上好"
+            greet_color = "#8E24AA"  # 晚上用紫色
+        else:
+            greeting = "😴 夜深了"
+            greet_color = "gray"     # 深夜用灰色
+
+        # 显示时间 (大一点，你可以随意改颜色！比如 'red', 'green', '#FF0000')
         # 这里演示改成一种漂亮的深青色
-            # 显示问候语 (小一点，彩色)
-            
-            self.show_colored_text(greeting, color=greet_color, size="14px", align="right")
-            self.show_colored_text(current_time, color="#00897B", size="20px", align="right")
-            # 使用时间组件显示
-            # st.metric(
-            #     label=greeting,
-            #     value=current_time,
-            #     delta=None
-            # )
+        # 显示问候语 (小一点，彩色)
+        
+        self.show_colored_text(greeting, color=greet_color, size="14px", align="right")
+        self.show_colored_text(current_time, color="#00897B", size="20px", align="right")
+        # 使用时间组件显示
+        # st.metric(
+        #     label=greeting,
+        #     value=current_time,
+        #     delta=None
+        # )
 
     def header(self, auth_state):
         st.divider()
@@ -119,17 +120,17 @@ class HomePage(BasePage):
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            st.info("📥 **素材下载**\n\n海量高清图片、图标、模板，一键获取，商用无忧。", icon="🖼️")
+            st.info("📥 **素材下载**\n\n海量高清图片、图标、模板,一键获取、商用无忧。", icon="🖼️")
             if st.button("去下载 →", key="btn_asset", width="stretch"):
                 st.toast("即将跳转到素材库...")
 
         with col2:
-            st.success("💾 **软件下载**\n\n精选免费/开源工具，安全无广告，持续更新。", icon="📦")
+            st.success("💾 **软件下载**\n\n精选免费/开源工具，安全无广告，持续更新。\n\n", icon="📦")
             if st.button("去下载 →", key="btn_soft", width="stretch"):
                 st.toast("即将跳转到软件中心...")
 
         with col3:
-            st.warning("🚀 **新功能体验**\n\n抢先试用AI助手、自动化脚本等前沿功能。", icon="🧪")
+            st.warning("🚀 **新功能体验**\n\n抢先试用AI助手、自动化脚本等前沿功能。\n\n", icon="🧪")
             if st.button("去体验 →", key="btn_new", width="stretch"):
                 st.toast("即将进入实验室...")
 
@@ -147,8 +148,11 @@ class HomePage(BasePage):
             if self.auth_state and self.auth_state.is_authenticated():
                 user = self.auth_state.user
                 email = getattr(user, "email", None) or (user.get("email") if isinstance(user, dict) else "未知")
-                #st.success(f"欢迎回来，{email}")
-                st.markdown(f"###### 👋 :blue[欢迎回来，{email} ]")
+                
+                # 获取用户类别
+                user_category = self.auth_state.get_user_category()
+                st.markdown(f"###### 👋 :blue[欢迎回来{email}  [{user_category}]]")
+
             st.button("📊 查看我的统计", width="stretch", key="btn_stats")
             st.button("⚙️ 设置偏好", width="stretch", key="btn_settings")
         st.info("🌀 正在加载最新资源...", icon="🔄")
@@ -169,13 +173,8 @@ class MaterialPage(BasePage):
     def __init__(self, auth_state = None):
         super().__init__(auth_state)
         self.material_downloader = MaterialDownLoad(auth_state)
-
-        
         #要展示的素材列表的键的名称
         self.material_list_key = ["thumbnail_url","image_url","resolution","file_size"]
-        
-
-        
         #搜索条件local_search_query ,search_source ,apikey,size_option #图片方向，orientation
     @property
     def orientation(self):
@@ -232,6 +231,26 @@ class MaterialPage(BasePage):
         st.session_state["per_page"]=value
 
     
+    # 获取key[Pixabay][Pexels][Unsplash]
+    def get_key(self,source):
+        """获取key"""
+        
+        source = source.lower()
+        key = ""
+        user_name = self.auth_state.get_user_category()
+        print(f"获取key:{source}_user_name:{user_name}")
+        if user_name == "管理员":
+            st.session_state["user_name"] = user_name
+            match source:
+                case "pixabay":
+                    key = st.secrets["Pixabay"]["key"]
+                case "pexels":
+                    key = st.secrets["Pexels"]["key"]
+                    #print(f"获取key:{source}_key:{key}")
+                case "unsplash":
+                    key = st.secrets["Unsplash"]["key"]
+        return key        
+        
 
 
 
@@ -284,16 +303,19 @@ class MaterialPage(BasePage):
     #渲染本地搜索素材输入框 和按钮
     def render_local_search_material(self):
         """渲染本地搜索素材输入框 和按钮"""
-        col1, col2 = st.columns([4, 1])
-        with col1:
-            query = st.text_input("🔍 搜索本地素材",value = self.local_search_query,
-                                  placeholder="输入关键词...", label_visibility="collapsed")
-        with col2:
-            if st.button("搜索", width="stretch"):
+        with st.form(key="local_search_form", clear_on_submit=False):
+            col1, col2 = st.columns([4, 1])
+            with col1:
+                query = st.text_input("🔍 搜索本地素材",value = self.local_search_query,
+                                    placeholder="输入关键词...", label_visibility="collapsed")
+            with col2:
+                submitted = st.form_submit_button("搜索", width="stretch")
                 #去除首尾空格后再搜索
-                if query.strip() and self.auth_state:
-                    self.local_search_query = query.strip()
-                    self.auth_state.search_material(self.local_search_query)
+        if submitted:
+            clean_query = query.strip()
+            if clean_query and self.auth_state:
+                self.local_search_query = clean_query
+                self.auth_state.search_material(self.local_search_query)
         st.markdown("---") 
             
 
@@ -305,8 +327,9 @@ class MaterialPage(BasePage):
                 #st.write(f"开始渲染了.....{self.search_source}")
                 #st.json(data)
                 photo_info = self.material_downloader.GetUrlBySearchResults(data,self.search_source)
-                #if not photo_info["photos"]:
-                    #return #字典中photos字段为空列表，没有图片数据
+                if not photo_info["photos"]:
+                    st.caption(f"没有搜索到内容：正在使用{self.search_source} | 搜索 {self.external_search_query} | 图片方向 {self.orientation} | 图片预览尺寸 {self.size_option} 第页数量 {self.per_page}")
+                    return #字典中photos字段为空列表，没有图片数据
                 
                 #page     = photo_info["page"]
                 #per_page = photo_info["per_page"]
@@ -321,7 +344,7 @@ class MaterialPage(BasePage):
 
                 # 显示结果统计  # 公式：(总数 + 每页数量 - 1) // 每页数量
                 total_pages=(total_results + self.per_page - 1 ) // self.per_page
-                st.caption(f"共找到 {total_results} 张图片 | 图片预览尺寸 {self.size_option}  | 当前第 {self.current_page} / {total_pages} 页")
+                st.caption(f"正在使用{self.search_source} | 搜索 {self.external_search_query} | 图片方向 {self.orientation} | 图片预览尺寸 {self.size_option}  | 共找到 {total_results} 张图片 | 当前第 {self.current_page} / {total_pages} 页")
 
 
                 # 获取图片信息 3列显示
@@ -356,7 +379,7 @@ class MaterialPage(BasePage):
                                 with columns[0]:
                                     st.link_button("🔗 查看原图", original_image_url, width="stretch")# 使用链接按钮
                                 with columns[1]:
-                                    if st.button("⬇️ 下载此图", key=f"download_{photo['id']}"):
+                                    if st.button("⬇️ 下载此图", key=f"download_{index}_{photo['id']}"):
                                         #img_data = requests.get(img_url).content
                                         self.material_downloader.ImageDwon(download_url)
                                         file_name = f"{photographer}_{photo['id']}.jpg"
@@ -365,7 +388,7 @@ class MaterialPage(BasePage):
                                             data        = getattr(self.material_downloader,"image_data"),# self.material_downloader.image_data,
                                             file_name   = file_name,
                                             mime        = "image/jpeg",
-                                            key         = f"dl_btn_{photo['id']}" # 给下载按钮也加个唯一 key
+                                            key         = f"dl_btn_{index}_{photo['id']}" # 给下载按钮也加个唯一 key
                                         )
                                     
 
@@ -407,117 +430,128 @@ class MaterialPage(BasePage):
    
     def render_external_resource_fetcher(self):
         """渲染外部资源获取界面"""
-        #st.subheader("从免费资源网站获取素材链接")
-        # st.markdown("""
-        # **支持的资源网站**:
-        # - 📷 Unsplash - 高质量摄影图片
-        # - 🎨 Pexels - 免费图片和视频
-        # - 🖼️ Pixabay - 超过 200 万张免费图片
-        
-        # ⚠️ 注意：使用前需要在代码中配置对应网站的 API Key
-        # """)
-
-
         # --- 1. 使用 st.form 包裹所有输入控件 ---
         # 这样用户修改下拉框或数字时，页面不会疯狂刷新，只有点搜索才运行
         with st.form(key="search_form", clear_on_submit=False):
             # --- 第一行：核心搜索区 (使用 columns 分列) ---
             # 
-            col_keyword,col_ori, col_size, col_source, col_count = st.columns([1.5,0.5, 0.5, 0.5,0.5])
-            with col_keyword:
-                search_query = st.text_input(
-                    "搜索关键词", 
-                    placeholder="🔍 搜索关键词",
-                    value= self.external_search_query,
-                    label_visibility="collapsed" # 隐藏标签，让界面更干净
-                )
+            #with col_keyword:
+            search_query = st.text_input(
+                "搜索关键词", 
+                placeholder="🔍 搜索关键词",
+                value= self.external_search_query,
+                label_visibility="collapsed" # 隐藏标签，让界面更干净
+            )
                 
-            with col_source:
-                source = st.selectbox(
-                    "选择资源来源",
-                    ["pexels", "unsplash", "pixabay"],
-                    label_visibility="collapsed",
-                    #format_func=lambda x: f"📷 {x.capitalize()}" if x == "unsplash" else (f"🎨 {x.capitalize()}" if x == "pexels" else f"🖼️ {x.capitalize()}")
-                    # 使用字典映射，代码可读性更强
-                    format_func=lambda x: {
-                        "unsplash": "📷 Unsplash",
-                        "pexels": "🎨 Pexels",
-                        "pixabay": "🖼️ Pixabay"
-                    }[x]
-                )
-
-            with col_size:
-                st.selectbox(
-                    "图片预览尺寸",
-                    ["thumbnail", "small", "medium", "large", "large2x", "original"],
-                    index=2,
-                    label_visibility="collapsed",
-                    key="size_option", # 建议也给这个加上 key，防止刷新重置
-                    format_func=lambda x:{
-                        "thumbnail": "缩略图",
-                        "small": "小图",
-                        "medium": "中图",
-                        "large": "大图",
-                        "large2x": "超大图",
-                        "original": "原图"
-                    }[x]
-                )
-
-            with col_ori:    #图片方向，orientation 可选值：landscape (横向), portrait (纵向), square (方形)
-                st.selectbox(
-                    "图片方向",
-                    ["", "landscape", "portrait", "square"],
-                    index = 1,
-                    label_visibility="collapsed",
-                    key="orientation" ,# 建议也给这个加上 key，防止刷新重置
-                    # 使用 format_func 将内部值映射为友好的中文显示
-                    format_func=lambda x: {
-                        "":         "不限",       # 对应 API 不传或空值
-                        "landscape": "横向", 
-                        "portrait": "纵向", 
-                        "square":   "方形"
-                    }.get(x, x)
-                )
-
-            with col_count:
-                #limit = st.number_input("数量", min_value=5, max_value=30, value=10, step=1,label_visibility="collapsed")
-                limit = st.number_input(
-                                        "数量",
-                                        min_value=5,
-                                        max_value=30,
-                                        value=15,
-                                        step=1,
-                                        label_visibility="collapsed",
-                                        help="请输入图片数量（5-30张）"
-                                    )
+            
                
             # --- 第二行：高级设置 (默认折叠，保持界面整洁) ---
             with st.expander("⚙️ 高级设置 (API Key & 说明)", expanded=False):
+                col_source, col_ori, col_size,col_count = st.columns([1.2, 1, 1, 0.8])
+
+                with col_source:
+                    source = st.selectbox(
+                        "选择资源来源",
+                        ["pexels", "unsplash", "pixabay"],
+                        label_visibility="collapsed",
+                        key="source_option", # 建议也给这个加上 key，防止刷新重置
+                        #format_func=lambda x: f"📷 {x.capitalize()}" if x == "unsplash" else (f"🎨 {x.capitalize()}" if x == "pexels" else f"🖼️ {x.capitalize()}")
+                        # 使用字典映射，代码可读性更强
+                        format_func=lambda x: {
+                            "unsplash": "📷 Unsplash",
+                            "pexels": "🎨 Pexels",
+                            "pixabay": "🖼️ Pixabay"
+                        }[x]
+                    )
+
+                with col_size:
+                    st.selectbox(
+                        "图片预览尺寸",
+                        ["thumbnail", "small", "medium", "large", "large2x", "original"],
+                        index=2,
+                        label_visibility="collapsed",
+                        key="size_option", # 建议也给这个加上 key，防止刷新重置
+                        format_func=lambda x:{
+                            "thumbnail": "缩略图",
+                            "small": "小图",
+                            "medium": "中图",
+                            "large": "大图",
+                            "large2x": "超大图",
+                            "original": "原图"
+                        }[x]
+                    )
+
+                with col_ori:    #图片方向，orientation 可选值：landscape (横向), portrait (纵向), square (方形)
+                    st.selectbox(
+                        "图片方向",
+                        ["", "landscape", "portrait", "square"],#Accepted values: "all", "horizontal", "vertical"
+                        index = 1,
+                        label_visibility="collapsed",
+                        key="orientation" ,# 建议也给这个加上 key，防止刷新重置
+                        # 使用 format_func 将内部值映射为友好的中文显示
+                        format_func=lambda x: {
+                            "":         "不限",       # 对应 API 不传或空值
+                            "landscape": "横向", 
+                            "portrait": "纵向", 
+                            "square":   "方形"
+                        }.get(x, x)
+                    )
+
+                with col_count:
+                    #limit = st.number_input("数量", min_value=5, max_value=30, value=10, step=1,label_visibility="collapsed")
+                    limit = st.number_input(
+                                            "数量",
+                                            min_value=5,
+                                            max_value=30,
+                                            value=15,
+                                            step=1,
+                                            label_visibility="collapsed",
+                                            help="请输入图片数量（5-30张）"
+                                        )
+
                 c1, c2 = st.columns(2)
                 with c1:
+                    
+
                     apikey = st.text_input("API Key", 
-                                            value = self.external_api_key, 
-                                            placeholder="粘贴你的密钥...", 
+                                            value = "" if st.session_state["user_name"]=="管理员" else self.external_api_key, 
+                                            label_visibility="collapsed",
+                                            placeholder=f"粘贴你的{self.search_source}密钥...", 
                                             type = "password")
-                    st.caption("💡 提示：如果不填，将使用默认公共密钥（如果有）")
+                    st.markdown("""
+                    - 💡 获取 API Key：[Unsplash](https://unsplash.com/developers) | [Pexels](https://www.pexels.com/api/) | [Pixabay](https://pixabay.com/zh/service/about/api/)
+                    - 💡 提示：支持中文搜索
+                    - ⚠️ 注意：使用前需要配置对应网站的APIKey   
+                    """)
+                    
                     
                 with c2:
                     st.markdown("""
-                    **使用说明：**
-                    1. 输入关键词，选择来源。
-                    2. 点击下方的搜索按钮。
-                    3. 结果将显示在下方表格中。
+                    *支持的资源网站*:
+                    - 📷 Unsplash - 高质量摄影图片
+                    - 🎨 Pexels - 免费图片和视频
+                    - 🖼️ Pixabay - 超过 200 万张免费图片
                     """)
+                    
              # --- 第三行：巨大的搜索按钮 ---
             # form_submit_button 必须在 form 内部
-            submitted = st.form_submit_button("🚀 开始搜索外部资源", use_container_width=True, type="primary")       
+            submitted = st.form_submit_button("🚀 开始搜索外部资源", width="stretch", type="primary")       
             if submitted:
+                
                 query = search_query.strip()
                 apikey= apikey.strip()
+                if not apikey: 
+                    apikey = self.get_key(source)
+                if not apikey:
+                    self.auth_state.message = "请输入API Key"   
+                    self.auth_state.status = "error"
+                    st.rerun()
+                    #print("请输入API Key")
+
                 if query and apikey:
                     #st.toast("开始下载")
                     self.search_source          = source
-                    self.external_api_key       = apikey
+                    self.external_api_key       = apikey 
                     self.external_search_query  = query
                     self.per_page               = limit
                     self.current_page = 1

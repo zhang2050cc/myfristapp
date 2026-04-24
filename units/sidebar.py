@@ -1,17 +1,26 @@
 import streamlit as st
 from units.database import SupabaseAuth
-from streamlit_cookies_manager import EncryptedCookieManager
 from session_state import AppState
+
+#cookies
+from streamlit_cookies_manager import EncryptedCookieManager
+
+
+
+
 
 
 class AuthState:
     """认证状态管理类，负责维护用户认证状态、登录/注册/退出逻辑，以及搜索功能的状态。"""
     def __init__(self):
+        # cookies
         self.cookies = EncryptedCookieManager(password= st.secrets["cookie_password"])
         if not self.cookies.ready():
             st.stop()
-        self.auth = SupabaseAuth()
+
         AppState.init_session_state()#初始化状态
+        self.auth = SupabaseAuth()
+
     @property
     def is_logged_in(self)->str:
         return st.session_state["is_logged_in"]
@@ -54,13 +63,26 @@ class AuthState:
     def local_search_results(self, value):
         st.session_state["local_search_results"] = value
 
-
+    
+    
+    
 
     def is_authenticated(self):
         """检查用户是否已登录"""
+        try:
+            session = self.auth.client.auth.get_session()
+            if session:
+                #print(f"session: 检查用户是否已登录")
+                st.session_state["session"] = session
+                self.user = session.user
+        except Exception as e:
+            print(f"session: {str(e)}")
+        
+
         if self.user is None :
             access_token=self.cookies.get("access_token")
             refresh_token=self.cookies.get("refresh_token")
+
             if access_token and refresh_token:
                 res = self.auth.get_user_state(access_token,refresh_token)
                 if res["ok"]:
@@ -78,9 +100,6 @@ class AuthState:
                     self.status = "error"#获取用户状态失败：error,'NoneType' object has no attribute 'user'
                     self.message = f"获取用户状态失败：{self.status},{res['error']}"
         return bool(self.user)
-        
-
-       
 
     def login(self, email, password):
         if not email or not password:
@@ -91,12 +110,13 @@ class AuthState:
         self.message = "正在登录..."
         res = self.auth.login(email, password)
         if res["ok"]:
-            user = res["data"]#["user"] #if isinstance(res["data"], dict) else {"email": email}
-            self.user = user.user
+            user = res["data"] # 登录成功返回的响应数据
+            self.user = user.user #print(user.json())
             self.email = email
             self.status = "success"
             self.message = "登录成功"
             self.is_logged_in = True
+
             self.cookies["access_token"]=user.session.access_token
             self.cookies["refresh_token"]=user.session.refresh_token
             self.cookies.save()
@@ -133,30 +153,58 @@ class AuthState:
             self.status = "success"
             self.message = "退出登录成功"
             self.is_logged_in = False
+
             self.cookies["access_token"]=""
             self.cookies["refresh_token"]=""
             self.cookies.save()
+
+            # 清空st.session_state
+            
+
             st.rerun()  # 刷新页面以更新状态            
         else:
             self.status = "error"
             self.message = f"退出失败：{res['error']}"
+    
+    # 用户类别 
+    def get_user_category(self):
+        """获取用户类别"""
+        if not self.user: return ""
 
+        user_id = self.user.id
+        user_role = ""
+        if user_id: 
+            access_token=self.cookies.get("access_token")
+            refresh_token=self.cookies.get("refresh_token")
+            res = self.auth.get_user_profile(user_id,access_token,refresh_token)
+            if res['ok']:
+                data = res["data"].data
+                if len(data)>0:
+                    user_role = data[0]["role"]
+                    if user_role == "admin":
+                        user_role = "管理员"
+                # result: data=[{'role': 'admin'}] count=None
+                #print(f"result: {data}")
+        return user_role
+    
     def search_material(self, query):
-            """示例搜索方法，实际实现应根据数据库结构调整"""
-            self.status = "loading"
-            self.message = f"正在搜索：{query}"
-            res = self.auth.search_material(query)
-            if res["ok"]:
-                self.status = "success"
-                self.message = f"搜索完成"
-                self.local_search_results = res["data"]
-                #st.write("搜索结果：", self.local_search_results)
-            else:
-                self.status = "error"
-                self.message = f"搜索失败：{res['error']}"
+        """示例搜索方法，实际实现应根据数据库结构调整"""
+        user_role=self.get_user_category()
+        print(f"开始搜索：{user_role}")
+
+        self.status = "loading"
+        self.message = f"正在搜索：{query}"
+        res = self.auth.search_material(query)
+        if res["ok"]:
+            self.status = "success"
+            self.message = f"搜索完成"
+            self.local_search_results = res["data"]
+            #st.write("搜索结果：", self.local_search_results)
+        else:
+            self.status = "error"
+            self.message = f"搜索失败：{res['error']}"
 
     
-
 
     
 
@@ -188,7 +236,7 @@ class AuthSidebar:
         #st.sidebar.markdown("使⽤ `SupabaseAuth` 进行注册 / 登录 / 退出。")
 
         if self.state.is_authenticated():
-            st.sidebar.success(f"当前已登录：{self.state.user.email}")#get('email', '未知')
+            st.sidebar.success(f"已登录{self.state.user.email}")
             if st.sidebar.button("退出登录", key="logout"):
                 self.state.logout()
         else:

@@ -172,7 +172,7 @@ class MaterialDownLoad():
                 headers = {"Authorization": f"Client-ID {apikey}","Accept": "application/json" }# 明确指定接收 JSON
                 params  = {"query": query, "page": current_page, "per_page": min(limit,30), "orientation":direction}#
             case "pixabay":
-                url     = "https://pixabay.com/api/"
+                url     = "https://pixabay.com/api/" #https://pixabay.com/api/
                 headers = None
                 params  = {"key": apikey, "q": query, "page": current_page, "per_page": min(limit,30), "orientation":direction}
                 #response = requests.get(url, params=params)
@@ -186,20 +186,21 @@ class MaterialDownLoad():
             # st.toast("正在搜索素材，请稍候...")
             # st.info(f"正在使用 {source} 搜索 '{query}' 素材，最多返回 {limit} 条结果。")
             # st.info(f"apikey: {apikey}")
-            #st.info(f"我经过了这里{source}")
+            # st.info(f"我经过了这里{source}")
             # return
             try:
                 response = requests.get(url, headers=headers, params=params)
                 #return response.json()
                 # st.toast(f"成功找到: {response.status_code}")
-                # st.info(f"原始返回内容: {response.text}") # 👈 这一行最关键
+                # st.info(f"原始返回内容: {response.text}") # 👈 这一行最关键 "results"
                 if response.status_code==200:
-
-                    self.auth_state.status = "success"
-                    self.auth_state.message = f"成功找到 {len(response.json().get('photos',[]))} 条素材！"
-                    
                     self.search_result = response.json()
-                    #st.write(response.json())
+                    #st.write(response.json())data.get("hits", []),
+
+                    num_results = len(self.search_result.get("photos",
+                                    self.search_result.get("results",self.search_result.get("hits", []))))
+                    self.auth_state.status = "success"
+                    self.auth_state.message = f"成功找到 {num_results} 条素材！"
                     
                 else:
                     self.auth_state.status = "search_failed"

@@ -4,18 +4,28 @@ import requests
 from typing import List, Dict
 
 
+
+
+
+
 class SupabaseAuth:
+    """
+    Supabase 认证类，用于用户注册、登录、登出和获取用户状态。
+    """
+    
     @staticmethod
     def _init_client() -> Client:
         try:
+            
             supabase_url = st.secrets["supabase_secret"]["url"]
             supabase_key = st.secrets["supabase_secret"]["key"]
             return create_client(supabase_url, supabase_key)
         except Exception as e:
-            raise RuntimeError(f"初始化 Supabase 客户端失败：{e}") from e
+            raise RuntimeError(f"初始化 Supabase 客户端失败：{str(e)}") 
 
     def __init__(self):
         self.client: Client = SupabaseAuth._init_client()
+        
 
     def register(self, email: str, password: str):
         try:
@@ -50,7 +60,22 @@ class SupabaseAuth:
         except Exception as e:
             return {"ok": False, "error": str(e)}
         
-    # 其他与用户相关的数据库操作方法可以在这里添加，例如获取用户资料、更新资料等    
+        
+    # 其他与用户相关的数据库操作方法可以在这里添加，例如获取用户资料、更新资料等   
+    # 获取用户资料
+    def get_user_profile(self, user_id,access_token,refresh_token):
+        """获取用户资料"""# credits 积分列表
+        
+        try:
+            response  = self.client.auth.set_session(access_token,refresh_token)
+            if response.user:
+                response = self.client.table("profiles").select("role").eq("id", user_id).execute()
+            return {"ok": True, "data": response}
+            
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+        
+    # 搜索素材 
     def search_material(self, query: str,limit: int = 3)-> Dict:
         """搜索本地数据库中的素材"""
         try:
@@ -59,9 +84,7 @@ class SupabaseAuth:
         except Exception as e:
             return {"ok": False, "error": str(e)}
     
-    
-    
-    
+   
     
     def save_resources_to_db(self, resources: List[Dict]) -> Dict:
         """
@@ -123,4 +146,5 @@ class SupabaseAuth:
             return {"ok": False, "error": str(e)}
         
 
-    
+   
+       

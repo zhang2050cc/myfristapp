@@ -362,38 +362,30 @@ class MaterialPage(BasePage):
                         download_url = ImageUrls["download_url"]#: None,       # 下载用
                         original_image_url = ImageUrls["original_image_url"]#: None, # 原图链接
                         photographer = ImageUrls["photographer"]#: None        # 摄影师信息
-
-
-                        # src_dict = photo.get("src", {})
-                        # img_url = src_dict.get(self.size_option, src_dict.get("medium", ""))
-                        # original_url= src_dict.get("original",src_dict.get("large2x",src_dict.get("large","")))
-                        # photographer = photo.get("photographer", "Unknown")#摄影师
-                        # p_url = photo.get("url", "#")#原图链接
-
-
                         
                         if image_url:# 图片信息
+                            # 渲染两个按钮(查看原图,下载此图)同一行显示
+                            columns = st.columns(2)
+                            with columns[0]:
+                                st.link_button("🔗 查看原图", original_image_url, width="stretch")# 使用链接按钮
+                            with columns[1]:
+                                if st.button("⬇️ 下载此图", key=f"download_{index}_{photo['id']}", width="stretch"):
+                                    #img_data = requests.get(img_url).content
+                                    self.material_downloader.ImageDwon(download_url)
+                                    file_name = f"{photographer}_{photo['id']}.jpg"
+                                    st.download_button(
+                                        label       ="✅ 下载成功 (点击保存)",
+                                        data        = getattr(self.material_downloader,"image_data"),
+                                        file_name   = file_name,
+                                        mime        = "image/jpeg",
+                                        key         = f"dl_btn_{index}_{photo['id']}" # 给下载按钮也加个唯一 key
+                                    )
 
                             with st.spinner("🔄 加载中..."):
                                 st.image(image_url, width="stretch")#显示图片
                                 st.caption(f"📸: {photographer}")
 
-                                # 渲染两个按钮(查看原图,下载此图)同一行显示
-                                columns = st.columns(2)
-                                with columns[0]:
-                                    st.link_button("🔗 查看原图", original_image_url, width="stretch")# 使用链接按钮
-                                with columns[1]:
-                                    if st.button("⬇️ 下载此图", key=f"download_{index}_{photo['id']}", width="stretch"):
-                                        #img_data = requests.get(img_url).content
-                                        self.material_downloader.ImageDwon(download_url)
-                                        file_name = f"{photographer}_{photo['id']}.jpg"
-                                        st.download_button(
-                                            label       ="✅ 下载成功 (点击保存)",
-                                            data        = getattr(self.material_downloader,"image_data"),# self.material_downloader.image_data,
-                                            file_name   = file_name,
-                                            mime        = "image/jpeg",
-                                            key         = f"dl_btn_{index}_{photo['id']}" # 给下载按钮也加个唯一 key
-                                        )
+                                
                                     
 
                 # --- 分页控制器 ---

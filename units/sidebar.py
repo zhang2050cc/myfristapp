@@ -76,7 +76,8 @@ class AuthState:
                 st.session_state["session"] = session
                 self.user = session.user
         except Exception as e:
-            print(f"session: {str(e)}")
+            pass
+            #print(f"session: {str(e)}")
         
 
         if self.user is None :
@@ -92,7 +93,6 @@ class AuthState:
                         self.status = "success"
                         self.is_logged_in = True
                         self.message = f"欢迎回来，{self.user.email}"
-                
                 else:
                     if self.status == "idle":#初始的默认值
                         return False
